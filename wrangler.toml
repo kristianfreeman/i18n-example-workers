@@ -1,0 +1,6 @@
+name = "i18n-example"
+type = "webpack"
+account_id = "95e065d2e3f97a1e50bae58aea71df6d"
+zone_id = "ef47aa23b6bf53a4d334b7e3f3579c56"
+workers_dev = false
+route = "https://i18n-example.workers-tooling.cf/*"
