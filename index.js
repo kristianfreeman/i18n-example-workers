@@ -1,7 +1,8 @@
+import { getAssetFromKV } from '@cloudflare/kv-asset-handler'
 import parser from 'accept-language-parser'
 
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
+  event.respondWith(handleRequest(event))
 })
 
 const strings = {
@@ -45,13 +46,13 @@ class ElementHandler {
   }
 }
 
-async function handleRequest(request) {
+async function handleRequest(event) {
   try {
-    const languageHeader = request.headers.get('Accept-Language')
+    const languageHeader = event.request.headers.get('Accept-Language')
     const language = parser.pick(['de', 'jp'], languageHeader)
     const countryStrings = strings[language] || {}
 
-    const response = await fetch(request)
+    const response = await getAssetFromKV(event)
 
     return new HTMLRewriter()
       .on('*', new ElementHandler(countryStrings))

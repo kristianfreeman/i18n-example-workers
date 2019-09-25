@@ -11,6 +11,7 @@
   "author": "Kristian Freeman <kristian@kristianfreeman.com>",
   "license": "MIT",
   "dependencies": {
+    "@cloudflare/kv-asset-handler": "0.0.2",
     "accept-language-parser": "^1.5.0"
   }
 }
