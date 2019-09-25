@@ -1,8 +1,14 @@
-import { getAssetFromKV } from '@cloudflare/kv-asset-handler'
+import {
+  getAssetFromKV,
+  defaultKeyModifier,
+} from '@cloudflare/kv-asset-handler'
 import parser from 'accept-language-parser'
 
+// do not set to true in production!
+const DEBUG = false
+
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event))
+  event.respondWith(handleEvent(event))
 })
 
 const strings = {
@@ -46,18 +52,35 @@ class ElementHandler {
   }
 }
 
-async function handleRequest(event) {
+async function handleEvent(event) {
+  const url = new URL(event.request.url)
   try {
+    let options = {}
+    if (DEBUG) {
+      options = {
+        cacheControl: {
+          bypassCache: true,
+        },
+      }
+    }
     const languageHeader = event.request.headers.get('Accept-Language')
     const language = parser.pick(['de', 'jp'], languageHeader)
     const countryStrings = strings[language] || {}
 
-    const response = await getAssetFromKV(event)
+    const response = await getAssetFromKV(event, options)
 
     return new HTMLRewriter()
       .on('*', new ElementHandler(countryStrings))
       .transform(response)
-  } catch (err) {
-    return new Response(err)
+  } catch (e) {
+    if (DEBUG) {
+      return new Response(e.message || e.toString(), {
+        status: 404,
+      })
+    } else {
+      return new Response(`"${defaultKeyModifier(url.pathname)}" not found`, {
+        status: 404,
+      })
+    }
   }
 }

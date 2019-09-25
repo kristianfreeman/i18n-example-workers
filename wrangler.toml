@@ -10,4 +10,4 @@ workers_dot_dev = false
 
 [site]
 bucket = "./public"
-entry-point = "."
+entry-point = "workers-site"
